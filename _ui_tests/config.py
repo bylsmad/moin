@@ -3,4 +3,5 @@
 
 """Contains global configuration for functional tests"""
 
-BASE_URL = "http://localhost:8080/"
+BASE_URL = "http://localhost:9080/"
+HEADLESS = True

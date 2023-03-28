@@ -1,5 +1,6 @@
 
 from dataclasses import dataclass, fields, field
+import logging
 from typing import List
 
 try:
@@ -7,6 +8,8 @@ try:
 except ImportError:
     from moin._tests.sitetesting import default_settings as settings
 from moin.utils.iri import Iri
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass

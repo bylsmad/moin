@@ -10,6 +10,7 @@ on:
   push:
     branches:
       - master
+      - 188-ui-tests
   pull_request:
     branches:
       - master
@@ -29,7 +30,7 @@ jobs:
     - name: Lint with flake8
       run: |
         pip install flake8
-        flake8 src/moin scripts setup.py quickinstall.py
+        flake8 src/moin scripts _ui_tests setup.py quickinstall.py
   pytest:
 
     needs: lint
@@ -65,6 +66,11 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
+    - name: chromedriver setup for ui_tests
+      uses: nanasess/setup-chromedriver@v1
+    - name: Test _ui_tests with pytest
+      run: |
+        pytest -c pytest-ui-tests.ini
     - name: Archive sitetesting results
       if: always()
       uses: actions/upload-artifact@v3
@@ -74,3 +80,12 @@ jobs:
           src/moin/_tests/sitetesting/server.log
           src/moin/_tests/sitetesting/scrapy/crawl.csv
           src/moin/_tests/sitetesting/scrapy/crawl.log
+    - name: Archive ui_test html generated in failed tests
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: ui-tests-${{ matrix.os }}
+        path: |
+          src/moin/_tests/sitetesting/ui-server.log
+          src/moin/_tests/sitetesting/wiki.moin
+          _ui_tests/*html

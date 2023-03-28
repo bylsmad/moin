@@ -431,7 +431,7 @@ class Commands:
                     if os.path.exists(src):
                         os.rename(src, dst)
 
-            command = 'moin save --all-backends --file {0}'.format(filename)
+            command = 'moin save --all-backends True --file {0}'.format(filename)
             with open(BACKUPWIKI, 'w') as messages:
                 result = subprocess.call(command, shell=True, stderr=messages, stdout=messages)
             if result == 0:
@@ -488,6 +488,23 @@ class Commands:
         print('Running tests... output written to {0}.'.format(TOX))
         command = 'tox -- {1} > {0} 2>&1'.format(TOX, ' '.join(args))
         subprocess.call(command, shell=True)
+        if not args:
+            command = ['chromedriver', '--version']
+            chrome_driver_installed = False
+            try:
+                p = subprocess.run(command, capture_output=True)
+            except FileNotFoundError as e:
+                out = e
+            else:
+                if p.stdout.startswith(b'ChromeDriver'):
+                    chrome_driver_installed = True
+                else:
+                    out = f'stdout = "{p.stdout}" stderr = "{p.stderr}"'
+            if chrome_driver_installed:
+                command = 'pytest -c pytest-ui-tests.ini >> {0} 2>&1'.format(TOX)
+                subprocess.call(command, shell=True)
+            else:
+                print(f'Warn: chromedriver not installed, skipping ui_tests: {out}"')
         print('Important messages from {0} are shown below. Do "{1} log tests" to see complete log.'.format(TOX, M))
         search_for_phrase(TOX)
         self.run_time('Tests')
